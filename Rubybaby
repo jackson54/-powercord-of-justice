@@ -1,0 +1,71 @@
+# frozen_string_literal: true
+#--
+# Copyright 2006 by Chad Fowler, Rich Kilmer, Jim Weirich and others.
+# All rights reserved.
+# See LICENSE.txt for permissions.
+#++
+
+require 'rubygems/util'
+require 'rubygems/deprecate'
+require 'rubygems/text'
+
+##
+# Module that defines the default UserInteraction.  Any class including this
+# module will have access to the +ui+ method that returns the default UI.
+
+module Gem::DefaultUserInteraction
+
+  include Gem::Text
+
+  ##
+  # The default UI is a class variable of the singleton class for this
+  # module.
+
+  @ui = nil
+
+  ##
+  # Return the default UI.
+
+  def self.ui
+    @ui ||= Gem::ConsoleUI.new
+  end
+
+  ##
+  # Set the default UI.  If the default UI is never explicitly set, a simple
+  # console based UserInteraction will be used automatically.
+
+  def self.ui=(new_ui)
+    @ui = new_ui
+  end
+
+  ##
+  # Use +new_ui+ for the duration of +block+.
+
+  def self.use_ui(new_ui)
+    old_ui = @ui
+    @ui = new_ui
+    yield
+  ensure
+    @ui = old_ui
+  end
+
+  ##
+  # See DefaultUserInteraction::ui
+
+  def ui
+    Gem::DefaultUserInteraction.ui
+  end
+
+  ##
+  # See DefaultUserInteraction::ui=
+
+  def ui=(new_ui)
+    Gem::DefaultUserInteraction.ui = new_ui
+  end
+
+  ##
+  # See DefaultUserInteraction::use_ui
+
+  def use_ui(new_ui, &block)
+    Gem::DefaultUserInteraction.use_ui(new_ui, &block)
+  end
